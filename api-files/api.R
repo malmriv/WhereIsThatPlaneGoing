@@ -1,3 +1,7 @@
+install.packages("plumber")
+install.packages("httr2")
+install.packages("jsonlite")
+
 library(plumber)
 library(httr2)
 library(jsonlite)
