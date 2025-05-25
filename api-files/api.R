@@ -7,7 +7,10 @@ library(jsonlite)
 
 #Define request-response function
 function(req, res) {
+  #Read airport information
+  airports <- read.csv("ListaAeropuertos.csv", sep = ";", stringsAsFactors = FALSE,fileEncoding = "UTF-8")
   
+  #Read request headers
   lat <- as.numeric(req$HTTP_LATITUD)
   lon <- as.numeric(req$HTTP_LONGITUD)
   
@@ -50,6 +53,32 @@ function(req, res) {
     # Check if data is empty or missing
     if (is.null(content$data) || length(content$data) == 0) {
       return(list(Mensaje = "No se encuentra a ningún avión a 7 km a la redonda :("))
+    }
+    else {
+      
+      #Aquí está toda la lógica para elaborar el mensaje. Solo lee el primer avión,
+      #manejar casos con múltiples resultados en versiones posteriores.
+      first_flight <- content$data[[1]]
+      orig_icao <- first_flight$orig_icao
+      dest_icao <- first_flight$dest_icao
+      orig_airport <- airports[airports$icao_code == orig_icao, ]
+      dest_airport <- airports[airports$icao_code == dest_icao, ]
+      get_airport_info <- function(df) {
+        if (nrow(df) == 0) {
+          return("aeropuerto desconocido")
+        } else {
+          paste0(df$name, " (", df$municipality, ", ", df$iso_country, ")")
+        }
+      }
+      
+      origin_info <- get_airport_info(orig_airport)
+      dest_info <- get_airport_info(dest_airport)
+      
+      mensaje <- paste0(
+        "Este avión vuela desde ", origin_info,
+        " hacia ", dest_info, "."
+      )
+      return(list(Mensaje = mensaje))
     }
     
     return(content)
