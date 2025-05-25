@@ -19,10 +19,10 @@ function(req, res) {
     return(list(error = "Invalid Latitud or Longitud values"))
   }
 
-  north <- lat + 0.135
-  south <- lat - 0.135
-  west  <- lon - 0.135
-  east  <- lon + 0.135
+  north <- round(lat + 0.0675, digits = 4)
+  south <- round(lat - 0.0675, digits = 4)
+  west  <- round(lon - 0.0675, digits = 4)
+  east  <- round(lon + 0.0675, digits = 4)
 
   list(
     north = north,
