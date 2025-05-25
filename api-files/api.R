@@ -2,62 +2,54 @@ library(plumber)
 library(httr2)
 library(jsonlite)
 
+
 #* @get /
 #* @serializer unboxedJSON
+
+#Define request-response function
 function(req, res) {
-  # Step 1: Get headers
-  raw_lat <- req$HTTP_LATITUD
-  raw_lon <- req$HTTP_LONGITUD
-
-  if (is.null(raw_lat) || is.null(raw_lon)) {
-    res$status <- 400
-    return(list(error = "Missing Latitud or Longitud headers"))
-  }
-
-  lat <- as.numeric(raw_lat)
-  lon <- as.numeric(raw_lon)
-
+  library(httr2)
+  
+  lat <- as.numeric(req$HTTP_LATITUD)
+  lon <- as.numeric(req$HTTP_LONGITUD)
+  
   if (is.na(lat) || is.na(lon)) {
     res$status <- 400
-    return(list(error = "Invalid Latitud or Longitud values"))
+    return(list(error = "Missing or invalid Latitud or Longitud headers"))
   }
-
-  # Step 2: Compute bounding box
+  
   north <- round(lat + 0.0675, 4)
   south <- round(lat - 0.0675, 4)
   west  <- round(lon - 0.0675, 4)
   east  <- round(lon + 0.0675, 4)
-
-  # Step 3: Load token from env
-  api_token <- Sys.getenv("MY_API_KEY")
-  if (identical(api_token, "")) {
-    res$status <- 500
-    return(list(error = "API token not configured"))
-  }
-
-  # Step 4: Build and send request
-  url <- "https://fr24api.flightradar24.com/api/live/flight-positions/full"
-  req_flights <- request(url) |>
-    req_url_query(bounds = paste(north, south, west, east, sep = ",")) |>
-    req_headers(
-      Authorization = paste("Bearer", api_token),
-      Accept = "application/json",
-      `Accept-Version` = "v1"
-    )
-
+  
+  url <- paste0(
+    "https://fr24api.flightradar24.com/api/live/flight-positions/full?",
+    "bounds=", north, ",", south, ",", west, ",", east
+  )
+  
+  #Set request, set headers according to FR24 documentation
+  req_api <- request(url)
+  req_api <- req_headers(req_api,
+                         Authorization = paste("Bearer", Sys.getenv("MY_API_KEY")),
+                         Accept = "application/json",
+                         `Accept-Version` = "v1"
+  )
+  #Try-catch in case of failure
   resp <- tryCatch(
-    req_perform(req_flights),
+    req_perform(req_api),
     error = function(e) {
       res$status <- 502
-      return(list(error = "Failed to contact FlightRadar24 API", detail = e$message))
+      return(list(error = "Upstream request failed", message = e$message))
     }
   )
-
-  # Step 5: Parse and return the response
-  if (inherits(resp, "response")) {
-    content <- resp_body_json(resp)
-    return(content)  # Return raw or processed JSON
+  
+  #In case of OK execution, this should act as a pass through integration
+  if (inherits(resp, "httr2_response")) {
+    res$status <- resp_status(resp)
+    res$setHeader("Content-Type", resp_header(resp, "Content-Type") %||% "application/json")
+    return(resp_body_json(resp))
   } else {
-    return(resp)  # Error object
+    return(resp)  # The error list from tryCatch
   }
 }
