@@ -3,12 +3,20 @@ library(plumber)
 #* @get /
 #* @serializer unboxedJSON
 function(req, res) {
-  lat <- as.numeric(req$HTTP_LATITUD)
-  lon <- as.numeric(req$HTTP_LONGITUD)
+  raw_lat <- req$HTTP_LATITUD
+  raw_lon <- req$HTTP_LONGITUD
+
+  if (is.null(raw_lat) || is.null(raw_lon)) {
+    res$status <- 400
+    return(list(error = "Missing Latitud or Longitud headers"))
+  }
+
+  lat <- as.numeric(raw_lat)
+  lon <- as.numeric(raw_lon)
 
   if (is.na(lat) || is.na(lon)) {
     res$status <- 400
-    return(list(error = "Missing or invalid Latitud or Longitud headers"))
+    return(list(error = "Invalid Latitud or Longitud values"))
   }
 
   north <- lat + 0.135
