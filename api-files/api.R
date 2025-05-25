@@ -46,7 +46,13 @@ function(req, res) {
   if (inherits(resp, "httr2_response")) {
     res$status <- resp_status(resp)
     res$setHeader("Content-Type", resp_header(resp, "Content-Type") %||% "application/json")
-    return(resp_body_json(resp))
+    content <- resp_body_json(resp)
+    # Check if data is empty or missing
+    if (is.null(content$data) || length(content$data) == 0) {
+      return(list(Mensaje = "No se encuentra a ningún avión a 7 km a la redonda :("))
+    }
+    
+    return(content)
   } else {
     return(resp)  # The error list from tryCatch
   }
