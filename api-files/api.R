@@ -2,18 +2,16 @@ library(plumber)
 library(httr2)
 library(jsonlite)
 
-
 #* @get /
 #* @serializer unboxedJSON
 
 #Define request-response function
 function(req, res) {
-  library(httr2)
   
   lat <- as.numeric(req$HTTP_LATITUD)
   lon <- as.numeric(req$HTTP_LONGITUD)
   
-  if (is.na(lat) || is.na(lon)) {
+  if (is.null(lat) || is.null(lon)) {
     res$status <- 400
     return(list(error = "Missing or invalid Latitud or Longitud headers"))
   }
