@@ -1,1 +1,1 @@
-plumber
+plumber,httr2,jsonlite
