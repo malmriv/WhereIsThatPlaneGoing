@@ -1,6 +1,6 @@
 # Where Is That Plane Going?
 
-This repository contains a simple automation designed for iPhones. Its purpose is to let you quickly identify the destination of a plane flying overhead — all with a single tap.
+This repository contains a simple automation designed for iPhones. Its purpose is to let you quickly identify the destination of a plane flying overhead with a single tap.
 
 ## How it works
 
@@ -16,7 +16,7 @@ This repository contains a simple automation designed for iPhones. Its purpose i
 
 The full implementation details will be shared in an upcoming blog post. For now, here is a high-level overview:
 
-1. The Shortcut is built using Apple's default tools — nothing fancy. (Surprisingly, it includes JSON parsing capabilities, although these are somewhat hidden under the label "lists").
+1. The Shortcut is built using Apple's default tools. (Surprisingly, it includes JSON parsing capabilities, although these are somewhat hidden under the label "lists").
 2. A `GET` request is sent to an API, including two custom headers: `Latitud` and `Longitud`, each containing the user's location in degrees.
 3. The API is deployed in a Docker container on a server. I used [Render.com](https://render.com) because its free plan was sufficient for my needs. The API consists of two R scripts:  
    - One exposes the API using [Plumber](https://www.rplumber.io/)  
