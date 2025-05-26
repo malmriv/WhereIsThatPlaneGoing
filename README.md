@@ -1,4 +1,4 @@
-# Where Is That Plane Going?
+# ✈️ Where Is That Plane Going?
 
 This repository contains a simple automation designed for iPhones. Its purpose is to let you quickly identify the destination of a plane flying overhead with a single tap.
 
@@ -12,7 +12,7 @@ This repository contains a simple automation designed for iPhones. Its purpose i
 
 ![Example result](https://github.com/malmriv/malmriv.github.io/blob/master/images/captura_witpg.jpeg?raw=true)
 
-## Implementation
+## Implementation details
 
 The full implementation details will be shared in an upcoming blog post. For now, here is a high-level overview:
 
@@ -24,3 +24,17 @@ The full implementation details will be shared in an upcoming blog post. For now
 4. The API receives the user's location and computes the bounding box spanning 7 km in all directions. It then queries the Flightradar24 API to identify nearby aircraft (usually just the most visible one). No additional filtering logic is applied — the first result is typically enough, even near airports.
 5. The Flightradar24 response is translated into human-readable text by mapping ICAO airport codes to actual airport names using a resource like the [OurAirports database](https://ourairports.com/data/).
 6. The Shortcut receives the result as a JSON object with a single `"Message"` field, which is then displayed as a notification.
+
+## How to reproduce
+
+- Fork this repository.
+- Obtain your own Flightradar24 API key.
+- Create an account on [Render.com](https://render.com).
+- Set up a Docker container (just a few clicks, no need for prior Docker knowledge).
+- Connect the container to your forked copy of the repository.
+- Add an environment variable named `MY_API_KEY` containing your Flightradar24 API key.
+- The repository already includes all necessary imports for it to run immediately.
+
+Good luck! 
+
+
